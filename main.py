@@ -167,15 +167,17 @@ def get_exif_data(image_path):
     try:
         img = Image.open(image_path)
         exif_data = img._getexif()
+
         if not exif_data:
             return "📭 No EXIF metadata found."
-        
+
         result = []
         for tag_id, value in exif_data.items():
             tag = ExifTags.TAGS.get(tag_id, tag_id)
             result.append(f"🔹 {tag}: {value}")
         
-        return "\n".join(result[:10])  # Limit output to first 10 lines
+        return "\n".join(result[:10])  # Show only first 10 tags
+
     except Exception as e:
         return f"❌ Error extracting EXIF: {str(e)}"
         
