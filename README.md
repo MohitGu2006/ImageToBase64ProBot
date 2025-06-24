@@ -30,7 +30,7 @@ A fast and professional Telegram bot that converts any image to Base64 format wi
 ### 🔧 Local Setup
 
 ```bash
-git clone https://github.com/yourusername/ImageToBase64ProBot
+git clone https://github.com/MohitGu2006/ImageToBase64ProBot.git
 cd ImageToBase64ProBot
 pip install -r requirements.txt
 ```
@@ -51,7 +51,7 @@ python main.py
 
 ### 🚀 Deploy to Railway
 
-1. Go to [https://railway.app](https://railway.app)
+  1. Go to [https://railway.app]([https://railway.com?referralCode=QJdoS_])
 2. Click **New Project** → **Deploy from GitHub Repo**
 3. Select this repository
 4. Railway will auto-detect `Procfile`
@@ -84,5 +84,5 @@ This project is licensed under the MIT License. Feel free to fork and improve.
 ## 👨‍💻 Developed by
 
 **Mohit Gupta**  
-Telegram: [@YourTelegramHandle]  
-GitHub: [github.com/yourusername](https://github.com/yourusername)
+Telegram: [@MohitGu2006](https://t.me/MohitGu2006)
+GitHub: [github.com/MohitGu2006](https://github.com/MohitGu2006)
