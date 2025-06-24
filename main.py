@@ -6,6 +6,7 @@ import io
 import time
 from datetime import datetime, timedelta
 from PIL import Image
+from PIL import ExifTags
 
 # Bot Configuration
 BOT_TOKEN = os.getenv("BOT_TOKEN")
@@ -161,6 +162,20 @@ def process_image(message, image_path):
             bot.reply_to(message, "❌ Unsupported file type")
             cleanup_file(image_path)
             return
+
+def get_exif_data(image_path):
+    try:
+        img = Image.open(image_path)
+        exif_data = img._getexif()
+        if not exif_data:
+            return "📭 No EXIF metadata found."
+        result = []
+        for tag_id, value in exif_data.items():
+            tag = ExifTags.TAGS.get(tag_id, tag_id)
+            result.append(f"🔹 {tag}: {value}")
+        return "\n".join(result[:10])  # Limit to first 10 lines
+    except Exception:
+        return "❌ Error extracting EXIF."
         
         # Convert to base64
         base64_string = image_to_base64(image_path)
@@ -214,6 +229,41 @@ def cleanup_file(file_path):
             os.remove(file_path)
     except Exception:
         pass  # Ignore cleanup errors
+
+@bot.message_handler(commands=['decode'])
+def decode_base64_image(message):
+    bot.reply_to(message, "📩 Send your Base64 string now.")
+
+@bot.message_handler(func=lambda msg: msg.reply_to_message and 'Send your Base64' in msg.reply_to_message.text)
+def handle_base64_decode(message):
+    try:
+        base64_data = message.text.strip()
+        image_data = base64.b64decode(base64_data)
+        file_name = f"decoded_{message.message_id}.png"
+        with open(file_name, "wb") as f:
+            f.write(image_data)
+        with open(file_name, "rb") as img:
+            bot.send_photo(message.chat.id, img, caption="🖼️ Here’s your decoded image!")
+        os.remove(file_name)
+    except Exception:
+        bot.reply_to(message, "❌ Invalid Base64 string.")
+
+@bot.message_handler(commands=['length'])
+def check_length(message):
+    bot.reply_to(message, "📩 Send Base64 text to calculate size.")
+
+@bot.message_handler(func=lambda msg: msg.reply_to_message and 'Send Base64 text' in msg.reply_to_message.text)
+def base64_length(message):
+    length = len(message.text)
+    kb = round((length * 3 / 4) / 1024, 2)
+    bot.reply_to(message, f"🔢 Length: `{length}` characters\n💾 Approx Size: `{kb} KB`", parse_mode='Markdown')
+
+@bot.message_handler(commands=['menu'])
+def show_menu(message):
+    markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+    markup.row("🔄 Convert Image", "📥 Decode Base64")
+    markup.row("📊 Check Base64 Length", "📤 Upload File")
+    bot.send_message(message.chat.id, "🔘 Choose an option:", reply_markup=markup)
 
 @bot.message_handler(func=lambda message: True)
 def handle_other_messages(message):
