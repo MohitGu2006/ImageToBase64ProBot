@@ -175,22 +175,36 @@ def get_exif_data(image_path):
         for tag_id, value in exif_data.items():
             tag = ExifTags.TAGS.get(tag_id, tag_id)
             result.append(f"🔹 {tag}: {value}")
-        
-        return "\n".join(result[:10])  # Show only first 10 tags
+
+        return "\n".join(result[:10])  # Limit output to 10 entries
 
     except Exception as e:
         return f"❌ Error extracting EXIF: {str(e)}"
-        
+
+
+def process_image(message, image_path):
+    """Process image and send response"""
+    try:
+        # Get image information
+        image_info = get_image_info(image_path)
+        if not image_info:
+            bot.reply_to(message, "❌ Unsupported file type")
+            cleanup_file(image_path)
+            return
+
+        # Get EXIF data
+        exif_data = get_exif_data(image_path)
+
         # Convert to base64
         base64_string = image_to_base64(image_path)
         if not base64_string:
             bot.reply_to(message, "❌ Error converting image to Base64.")
             cleanup_file(image_path)
             return
-        
+
         # Create base64 preview (first 100 characters)
         base64_preview = base64_string[:100] + "..." if len(base64_string) > 100 else base64_string
-        
+
         # Create response message with professional formatting
         response_text = f"""
 ✅ **Image Processed Successfully!**
@@ -200,31 +214,35 @@ def get_exif_data(image_path):
 💾 **File Size:** {image_info['size_kb']} KB
 🔐 **Base64 Preview:** `{base64_preview}`
 
+🧾 **EXIF Data (partial):**
+{exif_data}
+
 📄 **Complete Base64 data available in file below ⬇️**
         """
-        
+
         # Create and send base64 file with timestamp format
         base64_filename = create_base64_file(base64_string)
         if base64_filename:
             # Send message with image info
             bot.reply_to(message, response_text, parse_mode='Markdown')
-            
+
             # Send base64 file
             with open(base64_filename, 'rb') as base64_file:
-                bot.send_document(message.chat.id, base64_file, 
-                                caption="📄 Complete Base64 data - Professional format")
-            
+                bot.send_document(message.chat.id, base64_file,
+                                  caption="📄 Complete Base64 data - Professional format")
+
             # Cleanup base64 file
             cleanup_file(base64_filename)
         else:
             bot.reply_to(message, "❌ Error creating Base64 file.")
-        
+
         # Cleanup temporary image
         cleanup_file(image_path)
-        
+
     except Exception as e:
         bot.reply_to(message, f"❌ Error processing image: {str(e)}")
         cleanup_file(image_path)
+
 
 def cleanup_file(file_path):
     """Safely delete temporary files"""
