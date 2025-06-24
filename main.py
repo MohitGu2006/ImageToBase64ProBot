@@ -169,13 +169,15 @@ def get_exif_data(image_path):
         exif_data = img._getexif()
         if not exif_data:
             return "📭 No EXIF metadata found."
+        
         result = []
         for tag_id, value in exif_data.items():
             tag = ExifTags.TAGS.get(tag_id, tag_id)
             result.append(f"🔹 {tag}: {value}")
-        return "\n".join(result[:10])  # Limit to first 10 lines
-    except Exception:
-        return "❌ Error extracting EXIF."
+        
+        return "\n".join(result[:10])  # Limit output to first 10 lines
+    except Exception as e:
+        return f"❌ Error extracting EXIF: {str(e)}"
         
         # Convert to base64
         base64_string = image_to_base64(image_path)
