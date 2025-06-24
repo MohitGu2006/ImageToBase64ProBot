@@ -73,7 +73,7 @@ def create_base64_file(base64_string):
 def send_welcome(message):
     """Welcome message"""
     welcome_text = """
-🤖 **Welcome to Professional Image to Base64 Converter Bot!**
+🤖 **Welcome to Image2Base64ProBot!**
 
 📋 **How to use:**
 • Send me any image (photo or document)
